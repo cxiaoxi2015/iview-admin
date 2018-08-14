@@ -7,6 +7,10 @@
   ![](https://github.com/cxiaoxi2015/iview-admin/blob/master/src/assets/%E7%94%A8%E6%88%B7%E7%AE%A1%E7%90%86.png)
   用户信息查看<br/>
   ![](https://github.com/cxiaoxi2015/iview-admin/blob/master/src/assets/%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E6%9F%A5%E7%9C%8B.png)
+## 技术栈
+> vue
+
+> express
 ## 运行项目
   进入lock-admin 运行一下命令安装依赖包。
 ```
