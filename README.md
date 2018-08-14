@@ -1,5 +1,5 @@
 # 介绍
-  iview-admin 是基于vue2 + iview3 + axios + webpack3 为主要技术，开发的一个后台管理系统。</br>
+  iview-admin 是基于vue2 + iview3 + axios + webpack3 为前端主要技术，后端采用express+mysql开发的一个后台管理系统。</br>
 ## 运行项目
   进入lock-admin 运行一下命令安装依赖包。
 ```
