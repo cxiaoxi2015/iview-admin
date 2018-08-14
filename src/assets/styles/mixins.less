@@ -1,0 +1,21 @@
+/**
+ * @description: 混合样式文件
+ * @author: xx
+ * @date: 2018-08-06 15:25:51
+ */
+// 文本溢出省略号
+.text-overflow() {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+// 圆角
+.border-radius(@radius: 5px) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+}
+// iconfont字体库
+.icon-font() {
+  src: url("../../assets/iconfont/iconfont.woff");
+}

@@ -1,0 +1,54 @@
+/**
+ * @description:  通用样式问题
+ * @author: xx
+ * @date: 2018-08-08 10:42:52
+ */
+@import '../my-theme/index';
+#app {
+  .i-icon {
+    display: inline-block;
+    font-family: 'custom-font' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    text-rendering: auto;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    vertical-align: middle;
+  }
+  .ivu-page-item-active{
+    background: @primary-color;
+    a{
+      color: #FFF;
+    }
+  }
+}
+.my-modal{
+  .ivu-modal-header{
+    padding: 14px 16px 0 16px;
+    border-bottom: 1px solid transparent;
+  }
+  .modal-divider{
+    margin: 10px 0;
+  }
+  .ivu-modal-footer{
+    border-top: 1px solid transparent;
+  }
+  .modal-footer{
+    .ivu-btn{
+      margin-left: 5px;
+    }
+  }
+}
+.my-divider{
+  margin: 16px 0;
+}
+.float-right{
+  float: right;
+}
+.ivu-modal-confirm-footer{
+  display: none;
+}
