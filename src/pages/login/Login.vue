@@ -40,22 +40,22 @@ export default {
   methods: {
     signin () {
       this.loading = true
-      if (this.loginForm.username === 'admin' && this.loginForm.password === '123456'){
-        setTimeout(()=>{
-          this.$router.push('/')
-          this.loading = false
-        },2000)
-      } else if (this.loginForm.username === '' || this.loginForm.password === ''){
-        setTimeout(()=>{
-          this.loading = false
-          this.$Message.warning('用户名密码均不能为空')
-        },1000)
-      } else {
-        setTimeout(()=>{
-          this.loading = false
-          this.$Message.warning('用户名或密码错误')
-        })
-      }
+      // $axios.get('auth',{
+      //   username: this.username,
+      //   userpass: this.password
+      // },res => {
+      //
+      // },err => {
+      //
+      // })
+      this.$axios.get('http://localhost:3000/api/auth/login',{
+        username: this.username,
+        password: this.password
+      }).then((res) => {
+
+      }).catch((err) => {
+
+      })
     }
   },
   computed: {

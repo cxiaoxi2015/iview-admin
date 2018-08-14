@@ -24,6 +24,11 @@ import globalConfig from '../config/global.config'
 document.title = globalConfig.windowTitle
 Vue.prototype.logoName = globalConfig.logoName
 Vue.config.productionTip = false
+// axios
+import axios from 'axios'
+import $axios from '@/plugins/axios'
+Vue.prototype.$axios = axios
+Vue.prototype.$http = $axios
 
 /* eslint-disable no-new */
 new Vue({
