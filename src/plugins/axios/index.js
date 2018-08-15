@@ -5,6 +5,8 @@
  */
 const axios = require('axios')
 const preUrl = require('../../../config/global.config')
+const AUTH_TOKEN = sessionStorage.token || ''
+axios.defaults.headers.common['Authorization'] = AUTH_TOKEN
 
 /**
  * @description: FormData
@@ -19,6 +21,12 @@ let formData = (data) => {
   return _formData
 }
 
+var instance = axios.create({
+  timeout: 1000,
+  headers: {'X-Custom-Header': 'foobar'}
+});
+
+axios.default.timeout = 5000
 module.exports = {
   /**
    * @description: post方法
@@ -27,7 +35,6 @@ module.exports = {
    */
   post(url,param,thenFun,exeFun){
     var _formData = formData(param);
-    // axios.defaults.headers.common['Authorization']=sessionStorage.getItem("token")||localStorage.getItem("token")
     axios.post(preUrl.interfaceUrl + url,_formData).then( res => {
       thenFun.call(this,res.data);
     }).catch( err => {

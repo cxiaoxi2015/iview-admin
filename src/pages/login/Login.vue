@@ -40,21 +40,24 @@ export default {
   methods: {
     signin () {
       this.loading = true
-      // $axios.get('auth',{
-      //   username: this.username,
-      //   userpass: this.password
-      // },res => {
-      //
-      // },err => {
-      //
-      // })
-      this.$axios.get('http://localhost:3000/api/auth/login',{
-        username: this.username,
-        password: this.password
-      }).then((res) => {
-
-      }).catch((err) => {
-
+      this.$http.post('auth/login',{
+        username: this.loginForm.username,
+        userpass: this.loginForm.password
+      },res => {
+        this.loading = false
+        if (res.code === 200) {
+          this.$Message.success('登录成功')
+          sessionStorage.token = 'Bearer ' + res.token
+          this.$router.push('/')
+        } else {
+          this.$Message.warning(res.message)
+        }
+      },err => {
+        this.loading = false
+        this.$Notice.error({
+          title: '错误',
+          desc: '网络连接超时'
+        });
       })
     }
   },
