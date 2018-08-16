@@ -5,8 +5,7 @@
  */
 const axios = require('axios')
 const preUrl = require('../../../config/global.config')
-const AUTH_TOKEN = sessionStorage.token || ''
-axios.defaults.headers.common['Authorization'] = AUTH_TOKEN
+axios.defaults.headers['Authorization'] = sessionStorage.token || ''
 
 /**
  * @description: FormData
@@ -20,24 +19,38 @@ let formData = (data) => {
   }
   return _formData
 }
-
-var instance = axios.create({
-  timeout: 1000,
-  headers: {'X-Custom-Header': 'foobar'}
-});
-
-axios.default.timeout = 5000
+axios.defaults.timeout = 5000
+axios.defaults.headers['Content-type'] = 'application/json'
 module.exports = {
   /**
    * @description: post方法
+   * @config: {
+   *    _this : this (vue原型)
+   *    loading: data中定义的 loading('字符串格式 例如data定义的myloading config:{ _this: this, loading: 'myloading' }')
+   * }
    * @author: xx
    * @date: 2018-08-14 16:59:56
    */
-  post(url,param,thenFun,exeFun){
-    var _formData = formData(param);
+  post(url,param,config,thenFun,exeFun){
+    var _formData = formData(param)
+    let _this = config._this
+    _this[config.loading] = true
     axios.post(preUrl.interfaceUrl + url,_formData).then( res => {
-      thenFun.call(this,res.data);
+      const code = res.data.code
+      _this[config.loading] = false
+      if (code !== undefined) {
+        let type = code === 200 ? 'success' : 'warning'
+        _this.$Message[type](res.data.message)
+        if (code === 200){
+          thenFun.call(this,res.data);
+        }
+      }
     }).catch( err => {
+      _this[config.loading] = false
+      _this.$Notice.error({
+        title: '错误',
+        desc: '网络连接错误'
+      })
       exeFun.call(this,err);
     });
   },

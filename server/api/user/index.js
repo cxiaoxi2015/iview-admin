@@ -29,18 +29,16 @@ router.post('/login', (req, res) => {
       let data = {}
       data.token = token.createToken()
       data.code = 200
-      data.message = '登录成功'
+      data.message = '操作成功!'
       data.data = result[0]
       setTimeout(()=>{
         jsonWrite(res, data)
-      },1500)
+      },3000)
     } else {
       let data = {}
       data.code = 501
       data.message = '账号或密码错误'
-      setTimeout(()=>{
-        jsonWrite(res, data)
-      },1500)
+      jsonWrite(res, data)
     }
   })
 })
