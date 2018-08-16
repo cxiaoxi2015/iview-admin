@@ -42,7 +42,7 @@ module.exports = {
         let type = code === 200 ? 'success' : 'warning'
         _this.$Message[type](res.data.message)
         if (code === 200){
-          thenFun.call(this,res.data);
+          thenFun.call(this,res.data)
         }
       }
     }).catch( err => {
@@ -51,8 +51,8 @@ module.exports = {
         title: '错误',
         desc: '网络连接错误'
       })
-      exeFun.call(this,err);
-    });
+      exeFun.call(this,err)
+    })
   },
 
   /**

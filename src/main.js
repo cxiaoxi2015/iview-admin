@@ -26,10 +26,12 @@ Vue.prototype.logoName = globalConfig.logoName
 Vue.config.productionTip = false
 // axios
 import axios from 'axios'
-import $axios from '@/plugins/axios'
+import $axios from '@/common/axios'
 Vue.prototype.$axios = axios
 Vue.prototype.$http = $axios
-
+// regExp
+import verify from '@/common/verify'
+Vue.prototype.$verify = verify
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

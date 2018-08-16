@@ -6,15 +6,15 @@
               @modalRemove="modalRemove"
               @cancel="modalCancel"
               @confirm="modalConfirm">
-      <Button shape="circle" type="primary" :icon="editIcon" class="float-right not-allow" @click="userEdit" size="small"></Button>
+      <Button shape="circle" type="primary" :icon="editIcon" class="float-right not-allow" @click="userEdit" size="small" v-if="isEdit"></Button>
       <Form ref="userInfo" :model="userForm" :rules="userInfoRules" label-position="top" v-if="showForm">
         <FormItem label="账号" prop="userName">
           <Input v-model="userForm.userName" clearable />
         </FormItem>
         <FormItem label="地址" prop="address">
-          <Input v-model="userForm.address" clearable />
+          <Input v-model="userForm.address" clearable :maxlength="30" />
         </FormItem>
-        <FormItem label="注册时间" prop="register">
+        <FormItem label="注册时间" prop="register" v-if="isEdit">
           <Input v-model="userForm.register" clearable />
         </FormItem>
       </Form>
@@ -39,7 +39,7 @@ export default {
       // 表单验证
       userInfoRules: {
         userName: [
-          { required: true, message: '用户名不能为空', trigger: 'blur' }
+          { required: true, validator: this.$verify.checkUsername('账号不能为空','账号只能由3-15位的数字、字母组成') , trigger: 'blur' }
         ],
         address: [
           { required: true, message: '地址不能为空', trigger: 'blur' }
@@ -71,6 +71,7 @@ export default {
     },
     // 弹窗关闭
     modalRemove () {
+      this.showForm ? this.$refs.userInfo.resetFields() : ''
       this.$emit('editClose')
     }
   },
