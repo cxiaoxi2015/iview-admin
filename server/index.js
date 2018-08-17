@@ -27,6 +27,7 @@ app.post('*',multipartMiddleware,function(req, res, next){
 
 // 后端api路由
 app.use('/api/auth', api.auth)
+app.use('/api/user', api.user)
 
 // 监听端口
 app.listen(3000)

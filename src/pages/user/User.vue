@@ -4,7 +4,7 @@
     <content-header>
       <div slot="contentHeaderLeft">
         <Col span="4">
-          <Input v-model="account" placeholder="按账号查找..." clearable />
+          <Input v-model="username" placeholder="按账号查找..." clearable />
         </Col>
         <Col span="5">
           <Row :gutter="5">
@@ -23,10 +23,12 @@
       </div>
     </content-header>
     <content-container>
-      <Table border ref="selection" :columns="columns" :data="data"></Table>
+      <Spin size="large" fix v-if="loading"></Spin>
+      <Table border ref="selection" :columns="columns" :data="userList"></Table>
       <UserEdit :modalShow="showUserInfo"
                 :userInfo="userInfo"
                 :isEdit="isEdit"
+                @reloadData="queryUserByPagination"
                 @editClose="editCancel"
       ></UserEdit>
     </content-container>
@@ -40,15 +42,16 @@ export default {
   name: 'User',
   data () {
     return {
-      account: '', // 账号,
+      username: '', // 账号,
       registerTime: '', // 注册时间
       isSearching: false, // 查找中
-      total: 40,
-      pdevNums: '',
-      rows: '',
+      total: 0,
+      page: 1,
+      rows: 10,
       showUserInfo: false, // 是否显示用户信息弹窗(新增或编辑)
       modal2: true,
       modal_loading: false,
+      loading: false, // 数据加载中
       columns: [
         {
           type: 'selection',
@@ -57,19 +60,24 @@ export default {
         },
         {
           title: '账号',
-          key: 'userName'
+          key: 'USER_NAME'
         },
         {
           title: '设备数量',
-          key: 'devNums'
+          key: 'TOTAL_DEVICE'
         },
         {
           title: '注册时间',
-          key: 'register'
+          key: 'USER_REGISTER_DATE',
+          render: (h, params) => {
+            return h('div', [
+              h('span', params.row.USER_REGISTER_DATE)
+            ])
+          }
         },
         {
           title: '地址',
-          key: 'address'
+          key: 'USER_ADDRESS'
         },
         {
           title: '操作',
@@ -99,7 +107,7 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.deleteUser(params.index)
+                    this.deleteUser(params.row.USER_ID)
                   }
                 }
               }, '删除')
@@ -107,104 +115,7 @@ export default {
           }
         }
       ],
-      data: [
-        {
-          userName: 'John Brown',
-          devNums: 18,
-          address: 'New York No. 1 Lake Park',
-          register: '2016-10-03'
-        },
-        {
-          userName: 'Jim Green',
-          devNums: 24,
-          address: 'London No. 1 Lake Park',
-          register: '2016-10-01'
-        },
-        {
-          userName: 'Joe Black',
-          devNums: 30,
-          address: 'Sydney No. 1 Lake Park',
-          register: '2016-10-02'
-        },
-        {
-          userName: 'Jon Snow',
-          devNums: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          register: '2016-10-04'
-        },
-        {
-          userName: 'John Brown',
-          devNums: 18,
-          address: 'New York No. 1 Lake Park',
-          register: '2016-10-03'
-        },
-        {
-          userName: 'Jim Green',
-          devNums: 24,
-          address: 'London No. 1 Lake Park',
-          register: '2016-10-01'
-        },
-        {
-          userName: 'Joe Black',
-          devNums: 30,
-          address: 'Sydney No. 1 Lake Park',
-          register: '2016-10-02'
-        },
-        {
-          userName: 'Jon Snow',
-          devNums: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          register: '2016-10-04'
-        },
-        {
-          userName: 'John Brown',
-          devNums: 18,
-          address: 'New York No. 1 Lake Park',
-          register: '2016-10-03'
-        },
-        {
-          userName: 'Jim Green',
-          devNums: 24,
-          address: 'London No. 1 Lake Park',
-          register: '2016-10-01'
-        },
-        {
-          userName: 'Joe Black',
-          devNums: 30,
-          address: 'Sydney No. 1 Lake Park',
-          register: '2016-10-02'
-        },
-        {
-          userName: 'Jon Snow',
-          devNums: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          register: '2016-10-04'
-        },
-        {
-          userName: 'John Brown',
-          devNums: 18,
-          address: 'New York No. 1 Lake Park',
-          register: '2016-10-03'
-        },
-        {
-          userName: 'Jim Green',
-          devNums: 24,
-          address: 'London No. 1 Lake Park',
-          register: '2016-10-01'
-        },
-        {
-          userName: 'Joe Black',
-          devNums: 30,
-          address: 'Sydney No. 1 Lake Park',
-          register: '2016-10-02'
-        },
-        {
-          userName: 'Jon Snow',
-          devNums: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          register: '2016-10-04'
-        }
-      ],
+      userList: [],
       // 当前用户
       userId: null,
       userInfo: {},
@@ -214,6 +125,26 @@ export default {
   methods: {
     search () {
       this.isSearching = true
+      this.queryUserByPagination()
+    },
+    // 获取用户列表
+    queryUserByPagination () {
+      this.$http.get('user/queryUserByPagination',{
+        params: {
+          page: this.page,
+          rows: this.rows,
+          username: this.username,
+          registerTime: this.registerTime
+        }
+      }, {
+        _this: this,
+        loading: 'loading'
+      }, res => {
+        this.userList = res.data
+        this.total = res.total
+      }, err => {
+
+      })
     },
     // 用户新增
     userAdd () {
@@ -231,19 +162,27 @@ export default {
      * @author: xx
      * @date: 2018-08-10 09:51:55
      */
-    deleteUser (index) {
+    deleteUser (userId) {
       this.$confirm({
         title: '删除确认',
         tips: '您是否要继续删除？',
         loading: this.modal_loading,
-        confirm: ()=>{  this.deleteConfirm(index) }
+        confirm: ()=>{  this.deleteConfirm(userId) }
       })
     },
     // 确认删除
-    deleteConfirm (index) {
-      this.data.splice(index,1)
+    deleteConfirm (userId) {
       this.$Modal.remove()
-      this.$Message.success('删除成功')
+      this.$http.post('user/deleteUserById', {
+        userId: userId
+      },{
+        _this: this,
+        loading: 'loading'
+      }, res => {
+        this.queryUserByPagination()
+      }, err => {
+
+      })
     },
     // 弹窗关闭
     editCancel () {
@@ -253,6 +192,9 @@ export default {
   },
   components: {
     UserEdit
+  },
+  mounted () {
+    this.queryUserByPagination()
   }
 }
 </script>

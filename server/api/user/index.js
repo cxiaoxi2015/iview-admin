@@ -3,6 +3,7 @@ var express = require('express')
 var router = express.Router()
 var mysql = require('mysql')
 var token = require('../../token')
+var UUID = require('uuid')
 
 // 连接数据库
 var conn = mysql.createConnection(models.mysql)
@@ -17,28 +18,128 @@ var jsonWrite = function (res, ret) {
     res.json(ret)
   }
 }
-// 用户登录
-router.post('/login', (req, res) => {
-  var sql = `SELECT cname,role_id,sex,age FROM user WHERE user_name = ? AND user_pass = ? `
-  var params = req.body
-  conn.query(sql, [params.username, params.userpass],function (err, result) {
+// 获取用户列表
+router.get('/queryUserByPagination', (req, res) => {
+  var sql = `SELECT
+                t1.user_id as USER_ID,
+                t1.cname as USER_CNAME,
+                t1.user_name as USER_NAME, 
+                t1.sex as USER_SEX, 
+                t1.user_address as USER_ADDRESS, 
+                t1.age as USER_AGE, 
+                t1.register_date as USER_REGISTER_DATE 
+                    FROM user t1 LIMIT ?, ? WHERE user_name = ? AND rigister_data BETWEEN ? AND ?`
+  var param = req.query || req.params
+  var pageNum = parseInt(param.page || 1) // 页码
+  var end = parseInt(param.rows || 10) // 默认页数
+  var start = (pageNum - 1) * end
+  var userName = param.username || ''
+  var registerTime = param.registerTime || ''
+  var startTm = registerTime !== '' ? registerTime.substring(0,registerTime.indexOf('-')) + '00:00:00' : ''
+  var endTm = registerTime !== '' ? registerTime.substring(registerTime.indexOf('-') + 1) + '00:00:00' : ''
+  conn.query(sql, [start, end, userName, startTm, endTm],function (err, result) {
     if (err) {
       console.log(err)
     }
     if (result.length > 0) {
       let data = {}
-      data.token = token.createToken()
-      data.code = 200
-      data.message = '操作成功!'
-      data.data = result[0]
-      setTimeout(()=>{
-        jsonWrite(res, data)
-      },3000)
+      for(let i=0; i<result.length; i++){
+        // UTC时间转年月日
+        var dt = new Date(result[i].USER_REGISTER_DATE);
+        var date = [
+          [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()].join('-'),
+          [dt.getHours(), dt.getMinutes(), dt.getSeconds()].join(':')
+        ].join(' ').replace(/(?=\b\d\b)/g, '0'); // 正则补零
+        result[i].USER_REGISTER_DATE = date
+        // 查询用户下的所有设备
+        var sql1 = `SELECT COUNT(*) AS TOTAL_DEVICE FROM device WHERE own_user = ?`
+        conn.query(sql1,[result[i].USER_ID], function (err, result1) {
+          if (err) {
+            console.log(err)
+          }
+          if (result1) {
+            result[i].TOTAL_DEVICE = result1[0].TOTAL_DEVICE
+          }
+        })
+      }
+      data.data = result
+      data.pageNum = parseInt(req.query.page || 1)
+      data.pageSize = parseInt(req.query.rows || 10)
+      var sql = `SELECT COUNT(*) AS total FROM user`
+      conn.query(sql, function (err, result) {
+        if (err) {
+          console.log(err)
+        }
+        if (result) {
+          data.total = result[0].total
+          jsonWrite(res, data)
+        }
+      })
     } else {
+
+    }
+  })
+})
+
+// 新增用户
+router.post('/userAdd', (req, res) => {
+  var userId = UUID.v1()
+  var sql = `INSERT INTO user (user_id,user_name,user_pass,user_address) VALUES (?,?,'123456',?)`
+  var param = req.body
+  conn.query(sql, [userId,param.username, param.address], function (err, result) {
+    if (err) {
+      console.log(err)
+    }
+    if (result) {
       let data = {}
-      data.code = 501
-      data.message = '账号或密码错误'
+      data.code = 200
+      data.message = '操作成功'
       jsonWrite(res, data)
+    }
+  })
+})
+
+// 删除用户
+router.post('/deleteUserById', (req, res) => {
+  var sql = `DELETE FROM user WHERE user_id = ?`
+  var param = req.body
+  if(param.userId == 1001) {
+    let errData = {
+      code: 401,
+      message: '删除失败'
+    }
+    jsonWrite(res, errData)
+    return
+  }
+  conn.query(sql,[param.userId],function (err, result) {
+    if (err) {
+      console.log(err)
+    }
+    if (result) {
+      let data = {}
+      data.code = 200
+      data.message = '删除成功'
+      jsonWrite(res, data)
+    }
+  })
+})
+
+// 更新用户
+router.post('/updateUser', (req, res) => {
+  var sql = `UPDATE user SET user_address = ? WHERE user_id = ?`
+  var param = req.body
+  conn.query(sql, [param.address,param.userId], function (err, result) {
+    if (err) {
+      jsonWrite(res , {
+        code: 401,
+        message: '更新失败'
+      })
+    }
+    if (result) {
+      jsonWrite(res , {
+        code: 200,
+        message: '更新成功'
+      })
     }
   })
 })

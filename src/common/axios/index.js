@@ -4,7 +4,6 @@
  * @date: 2018-08-14 16:56:09
  */
 const axios = require('axios')
-const preUrl = require('../../../config/global.config')
 axios.defaults.headers['Authorization'] = sessionStorage.token || ''
 
 /**
@@ -35,7 +34,7 @@ module.exports = {
     var _formData = formData(param)
     let _this = config._this
     _this[config.loading] = true
-    axios.post(preUrl.interfaceUrl + url,_formData).then( res => {
+    axios.post('/api/' + url,_formData).then( res => {
       const code = res.data.code
       _this[config.loading] = false
       if (code !== undefined) {
@@ -57,19 +56,37 @@ module.exports = {
 
   /**
    * @description: get方法
+   * @config: {
+   *    _this : this (vue原型)
+   *    loading: data中定义的 loading('字符串格式 例如data定义的myloading config:{ _this: this, loading: 'myloading' }')
+   * }
    * @author: xx
-   * @date: 2018-08-14 17:01:15
+   * @date: 2018-08-14 16:59:56
    */
-  get (url,param,thenFun,exeFun){
-    // axios.defaults.headers.common['Authorization']=sessionStorage.getItem("token")||localStorage.getItem("token")
-    axios({
-      method: 'get',
-      url: preUrl.interfaceUrl+url,
-      params: param
-    }).then( res => {
-      thenFun.call(this,res.data);
+  get(url,param,config,thenFun,exeFun){
+    let _this = config._this
+    _this[config.loading] = true
+    axios.get('/api/' + url,param).then( res => {
+      const code = res.data.code
+      _this[config.loading] = false
+      // 返回data对象
+      if (code !== undefined) {
+        if (code === 200){
+          thenFun.call(this,res.data)
+        }
+      } else {
+        // 返回data数组
+        if (res.data.data.length > 0) {
+          thenFun.call(this,res.data)
+        }
+      }
     }).catch( err => {
-      exeFun.call(this,err);
-    });
-  }
+      _this[config.loading] = false
+      _this.$Notice.error({
+        title: '错误',
+        desc: '网络连接错误'
+      })
+      exeFun.call(this,err)
+    })
+  },
 }

@@ -3,6 +3,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
+const global_config = require('./global.config')
 
 module.exports = {
   dev: {
@@ -12,7 +13,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {
-        target: 'http://localhost:3000/api/',
+        target: global_config.interfaceUrl,
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''
