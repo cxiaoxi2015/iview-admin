@@ -9,7 +9,7 @@
         <Col span="5">
           <Row :gutter="5">
             <Col span="20">
-              <datePicker :value="registerTime" format="yyyy/MM/dd" type="daterange" placement="bottom-start" placeholder="按注册时间查找..."></datePicker>
+              <datePicker v-model="registerDate" format="yyyy/MM/dd" type="daterange" placement="bottom-start" placeholder="按注册时间查找..."></datePicker>
             </Col>
             <Col span="4">
               <Button type="primary" icon="ios-search" :loading="isSearching" @click="search"></Button>
@@ -43,7 +43,9 @@ export default {
   data () {
     return {
       username: '', // 账号,
-      registerTime: '', // 注册时间
+      registerDate: '', // 注册时间
+      startTm: '', // 开始时间
+      endTm: '', // 结束时间
       isSearching: false, // 查找中
       total: 0,
       page: 1,
@@ -129,12 +131,14 @@ export default {
     },
     // 获取用户列表
     queryUserByPagination () {
+      console.log(this.startTm)
       this.$http.get('user/queryUserByPagination',{
         params: {
           page: this.page,
           rows: this.rows,
           username: this.username,
-          registerTime: this.registerTime
+          startTm: this.startTm,
+          endTm: this.endTm
         }
       }, {
         _this: this,
@@ -142,6 +146,7 @@ export default {
       }, res => {
         this.userList = res.data
         this.total = res.total
+        this.isSearching = false
       }, err => {
 
       })
@@ -192,6 +197,17 @@ export default {
   },
   components: {
     UserEdit
+  },
+  watch: {
+    registerDate (val) {
+      if (val[0] !== '') {
+        this.startTm = this.$dateFormat(val[0],'yyyy-MM-dd') + ' 00:00:00'
+        this.endTm = this.$dateFormat(val[1],'yyyy-MM-dd') + ' 00:00:00'
+      } else {
+        this.startTm = ''
+        this.endTm = ''
+      }
+    }
   },
   mounted () {
     this.queryUserByPagination()

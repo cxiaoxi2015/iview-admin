@@ -18,8 +18,15 @@ var jsonWrite = function (res, ret) {
     res.json(ret)
   }
 }
-// 获取用户列表
+// 条件获取用户列表
 router.get('/queryUserByPagination', (req, res) => {
+  var param = req.query || req.params
+  var pageNum = parseInt(param.page || 1) // 页码
+  var end = parseInt(param.rows || 10) // 默认页数
+  var start = (pageNum - 1) * end
+  var username = param.username
+  var startTm = param.startTm
+  var endTm = param.endTm
   var sql = `SELECT
                 t1.user_id as USER_ID,
                 t1.cname as USER_CNAME,
@@ -28,16 +35,19 @@ router.get('/queryUserByPagination', (req, res) => {
                 t1.user_address as USER_ADDRESS, 
                 t1.age as USER_AGE, 
                 t1.register_date as USER_REGISTER_DATE 
-                    FROM user t1 LIMIT ?, ? WHERE user_name = ? AND rigister_data BETWEEN ? AND ?`
-  var param = req.query || req.params
-  var pageNum = parseInt(param.page || 1) // 页码
-  var end = parseInt(param.rows || 10) // 默认页数
-  var start = (pageNum - 1) * end
-  var userName = param.username || ''
-  var registerTime = param.registerTime || ''
-  var startTm = registerTime !== '' ? registerTime.substring(0,registerTime.indexOf('-')) + '00:00:00' : ''
-  var endTm = registerTime !== '' ? registerTime.substring(registerTime.indexOf('-') + 1) + '00:00:00' : ''
-  conn.query(sql, [start, end, userName, startTm, endTm],function (err, result) {
+                    FROM user t1 WHERE 1 = 1`
+  var paramList = []
+  if (username !== '' && username !== undefined){
+    sql += ' and user_name = ?'
+    paramList.push(username)
+  }
+  if (startTm !== '' && startTm !== undefined){
+    sql += ' and register_date between ? and ?'
+    paramList.push(startTm, endTm)
+  }
+  sql += ' LIMIT ?, ?'
+  paramList.push(start, end)
+  conn.query(sql, paramList,function (err, result) {
     if (err) {
       console.log(err)
     }
