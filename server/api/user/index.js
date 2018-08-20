@@ -18,6 +18,7 @@ var jsonWrite = function (res, ret) {
     res.json(ret)
   }
 }
+
 // 条件获取用户列表
 router.get('/queryUserByPagination', (req, res) => {
   var param = req.query || req.params
@@ -47,6 +48,9 @@ router.get('/queryUserByPagination', (req, res) => {
   }
   sql += ' LIMIT ?, ?'
   paramList.push(start, end)
+  var userToken = req.headers.authorization
+  userToken = userToken.substring(userToken.indexOf(' '))
+  // console.log(token.decodeToken(userToken))
   conn.query(sql, paramList,function (err, result) {
     if (err) {
       console.log(err)

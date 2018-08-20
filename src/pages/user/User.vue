@@ -131,7 +131,6 @@ export default {
     },
     // 获取用户列表
     queryUserByPagination () {
-      console.log(this.startTm)
       this.$http.get('user/queryUserByPagination',{
         params: {
           page: this.page,

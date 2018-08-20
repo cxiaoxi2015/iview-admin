@@ -46,7 +46,7 @@ export default {
         username: this.loginForm.username,
         userpass: this.loginForm.password
       }, config, res => {
-        sessionStorage.token = 'Bearer ' + res.token
+        this.$store.commit('setToken', res.token)
         this.$router.push('/')
       },err => {
 

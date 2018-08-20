@@ -18,5 +18,12 @@ export default {
   // 边栏展开状态
   siderChange (state, isCollapsed) {
     state.isCollapsed = isCollapsed
+  },
+  // 登录后设置token
+  setToken (state, token) {
+    state.token = 'Bearer' + token
+    try {
+      sessionStorage.token = 'Bearer' + token
+    } catch (e) {}
   }
 }
