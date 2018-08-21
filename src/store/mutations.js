@@ -25,5 +25,12 @@ export default {
     try {
       sessionStorage.token = 'Bearer' + token
     } catch (e) {}
+  },
+  // 退出登录
+  logout (state) {
+    state.token = ''
+    try {
+      sessionStorage.removeItem('token')
+    } catch (e) {}
   }
 }

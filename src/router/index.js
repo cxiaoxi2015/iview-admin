@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/pages/home/Home'
 import Login from '@/pages/login/Login'
+import store from '@/store'
 Vue.use(Router)
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
@@ -79,38 +80,23 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   NProgress.done().start()
   next()
-  // let toName = to.name
-  // let token = store.state.token
-  //
-  // //返回值为登录状态
-  // if ((token === null || token === '') && (toName !== 'Login' && to.meta.auth)) {
-  //   router.push({
-  //     name:'Login'
-  //   })
-  // }else {
-  //   if (token !== null && token !=='' && toName === 'Login') {
-  //     router.push({
-  //       path:'/'
-  //     })
-  //   } else {
-  //     if (to.meta.menuId !== undefined){
-  //       let menuId = to.meta.menuId
-  //       let menuCodeList = JSON.parse(store.state.menuCode)
-  //       if (menuCodeList.indexOf(menuId)!==-1){
-  //         next()
-  //       }else{
-  //         alert('您没有权限访问该页面!')
-  //         setTimeout(function(){
-  //           router.push({
-  //             path:'/Login'
-  //           },3000)
-  //         })
-  //       }
-  //     }else{
-  //       next()
-  //     }
-  //   }
-  // }
+  let toName = to.name
+  let token = store.state.token
+
+  //返回值为登录状态
+  if ((token === null || token === '') && (toName !== 'Login' && to.meta.requireAuth)) {
+    router.push({
+      path: 'login'
+    })
+  }else {
+    if (token !== null && token !=='' && toName === 'login') {
+      router.push({
+        path:'/'
+      })
+    } else {
+      next()
+    }
+  }
 })
 router.afterEach(route => {
   NProgress.done()

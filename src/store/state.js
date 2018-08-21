@@ -20,5 +20,5 @@ try {
 export default {
   routerMap: defaultRouterMap, // 路由记录
   isCollapsed: false, // 边栏收缩状态
-  token: token, // 用户登录token
+  token: token // 用户登录token
 }

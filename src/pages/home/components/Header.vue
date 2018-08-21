@@ -35,14 +35,14 @@ export default {
         this.$confirm({
           title: '登出',
           tips: '您确认要退出吗？',
-          confirm: () => { this.logout(routerName) }
+          confirm: () => {
+            this.$store.dispatch('logout').then(() => {
+              this.$Modal.remove()
+              this.$router.push(routerName)
+            })
+          }
         })
       }
-    },
-    // 登出
-    logout (routerName) {
-      this.$Modal.remove()
-      this.$router.push(routerName)
     }
   },
   props: {
