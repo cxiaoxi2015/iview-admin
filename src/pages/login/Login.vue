@@ -38,19 +38,28 @@ export default {
   },
   methods: {
     signin () {
-      let config = {
-        _this: this,
-        loading: 'loading'
-      }
-      this.$http.post('auth/login',{
-        username: this.loginForm.username,
-        userpass: this.loginForm.password
-      }, config, res => {
-        this.$store.commit('setToken', res.token)
+      // let config = {
+      //   _this: this,
+      //   loading: 'loading'
+      // }
+      // this.$http.post('auth/login',{
+      //   username: this.loginForm.username,
+      //   userpass: this.loginForm.password
+      // }, config, res => {
+      //   this.$store.commit('setToken', res.token)
+      //   this.$router.push('/')
+      // },err => {
+      //
+      // })
+      if (this.loginForm.username !== '' && this.loginForm.password !== '') {
+        this.$store.commit('setToken', 'isLogin')
         this.$router.push('/')
-      },err => {
-
-      })
+      } else {
+        this.$Notice.warning({
+          title: '提示',
+          desc: '请输入任意用户名密码登录'
+        })
+      }
     }
   },
   computed: {
